@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
@@ -28,9 +29,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import com.example.musux.ui.DownloaderScreen
 import com.example.musux.ui.LibraryScreen
 import com.example.musux.ui.MiniPlayer
 import com.example.musux.ui.SearchScreen
+import com.example.musux.ui.SettingsScreen
 import com.example.musux.ui.theme.MusuxTheme
 
 class MainActivity : ComponentActivity() {
@@ -65,8 +68,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainAppScreen(viewModel: MainViewModel) {
     var selectedItem by rememberSaveable { mutableStateOf(0) }
-    val items = listOf("Library", "Search", "Settings")
-    val icons = listOf(Icons.Filled.LibraryMusic, Icons.Filled.Search, Icons.Filled.Settings)
+    val items = listOf("Library", "Search", "Downloader", "Settings")
+    val icons = listOf(Icons.Filled.LibraryMusic, Icons.Filled.Search, Icons.Filled.CloudDownload, Icons.Filled.Settings)
 
     Scaffold(
         bottomBar = {
@@ -92,11 +95,9 @@ fun MainAppScreen(viewModel: MainViewModel) {
             Box(modifier = Modifier.fillMaxSize()) {
                 when (selectedItem) {
                     0 -> LibraryScreen(viewModel = viewModel)
-                    1 -> SearchScreen()
-                    else -> Text(
-                        text = "${items[selectedItem]} Screen Placeholder",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    1 -> SearchScreen(viewModel = viewModel)
+                    2 -> DownloaderScreen()
+                    3 -> SettingsScreen()
                 }
             }
         }
