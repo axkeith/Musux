@@ -15,7 +15,7 @@ fun LibraryScreen(viewModel: MainViewModel, modifier: Modifier = Modifier) {
     val songs by viewModel.allSongs.collectAsState(initial = emptyList())
 
     LazyColumn(modifier = modifier) {
-        items(songs) { song ->
+        items(songs, key = { it.id }) { song ->
             ListItem(
                 headlineContent = { Text(song.title) },
                 supportingContent = { Text(song.artist) }

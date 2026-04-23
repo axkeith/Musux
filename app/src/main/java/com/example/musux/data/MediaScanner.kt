@@ -10,7 +10,6 @@ import kotlinx.coroutines.withContext
 class MediaScanner(private val context: Context, private val songDao: SongDao) {
 
     suspend fun scanLocalMedia() = withContext(Dispatchers.IO) {
-        val songs = mutableListOf<Song>()
         val collection = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
             MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
         } else {
@@ -38,6 +37,8 @@ class MediaScanner(private val context: Context, private val songDao: SongDao) {
             null,
             sortOrder
         )?.use { cursor ->
+            val songs = ArrayList<Song>(cursor.count)
+            val albumArtUriBase = Uri.parse("content://media/external/audio/albumart")
             val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
             val titleColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
             val artistColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
@@ -57,8 +58,7 @@ class MediaScanner(private val context: Context, private val songDao: SongDao) {
                 val albumId = cursor.getLong(albumIdColumn)
                 val dateAdded = cursor.getLong(dateAddedColumn)
 
-                val albumArtUri = Uri.parse("content://media/external/audio/albumart")
-                val artUri = ContentUris.withAppendedId(albumArtUri, albumId).toString()
+                val artUri = ContentUris.withAppendedId(albumArtUriBase, albumId).toString()
 
                 songs.add(
                     Song(
@@ -73,11 +73,11 @@ class MediaScanner(private val context: Context, private val songDao: SongDao) {
                     )
                 )
             }
-        }
 
-        if (songs.isNotEmpty()) {
-            songDao.deleteAllSongs()
-            songDao.insertSongs(songs)
+            if (songs.isNotEmpty()) {
+                songDao.deleteAllSongs()
+                songDao.insertSongs(songs)
+            }
         }
     }
 }

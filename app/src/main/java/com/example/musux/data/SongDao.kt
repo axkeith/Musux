@@ -16,4 +16,10 @@ interface SongDao {
 
     @Query("DELETE FROM songs")
     suspend fun deleteAllSongs()
+
+    @Query("SELECT COUNT(*) FROM songs")
+    suspend fun getSongCount(): Int
+
+    @Query("SELECT MAX(dateAdded) FROM songs")
+    suspend fun getLastAddedDate(): Long?
 }
