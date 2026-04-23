@@ -10,7 +10,6 @@ import kotlinx.coroutines.withContext
 class MediaScanner(private val context: Context, private val songDao: SongDao) {
 
     suspend fun scanLocalMedia() = withContext(Dispatchers.IO) {
-        val songs = mutableListOf<Song>()
         val collection = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
             MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
         } else {
@@ -31,7 +30,7 @@ class MediaScanner(private val context: Context, private val songDao: SongDao) {
         val selection = "${MediaStore.Audio.Media.IS_MUSIC} != 0"
         val sortOrder = "${MediaStore.Audio.Media.TITLE} ASC"
 
-        context.contentResolver.query(
+        val songs = context.contentResolver.query(
             collection,
             projection,
             selection,
@@ -47,6 +46,7 @@ class MediaScanner(private val context: Context, private val songDao: SongDao) {
             val albumIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)
             val dateAddedColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED)
 
+            val songsList = ArrayList<Song>(cursor.count)
             while (cursor.moveToNext()) {
                 val id = cursor.getLong(idColumn)
                 val title = cursor.getString(titleColumn) ?: "Unknown Title"
@@ -60,7 +60,7 @@ class MediaScanner(private val context: Context, private val songDao: SongDao) {
                 val albumArtUri = Uri.parse("content://media/external/audio/albumart")
                 val artUri = ContentUris.withAppendedId(albumArtUri, albumId).toString()
 
-                songs.add(
+                songsList.add(
                     Song(
                         id = id,
                         title = title,
@@ -73,7 +73,8 @@ class MediaScanner(private val context: Context, private val songDao: SongDao) {
                     )
                 )
             }
-        }
+            songsList
+        } ?: emptyList()
 
         if (songs.isNotEmpty()) {
             songDao.deleteAllSongs()
