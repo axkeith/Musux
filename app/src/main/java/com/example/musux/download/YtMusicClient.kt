@@ -33,11 +33,4 @@ class YtMusicClient {
             )
         )
     }
-
-    suspend fun downloadSong(id: String) {
-        withContext(Dispatchers.IO) {
-            delay(2000) // Simulate downloading process
-            // Stub for downloader with metadata and lyrics tagging
-        }
-    }
 }
