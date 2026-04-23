@@ -47,6 +47,7 @@ class MediaScanner(private val context: Context, private val songDao: SongDao) {
             val albumIdColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)
             val dateAddedColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED)
 
+            val albumArtUri = Uri.parse("content://media/external/audio/albumart")
             while (cursor.moveToNext()) {
                 val id = cursor.getLong(idColumn)
                 val title = cursor.getString(titleColumn) ?: "Unknown Title"
@@ -57,7 +58,6 @@ class MediaScanner(private val context: Context, private val songDao: SongDao) {
                 val albumId = cursor.getLong(albumIdColumn)
                 val dateAdded = cursor.getLong(dateAddedColumn)
 
-                val albumArtUri = Uri.parse("content://media/external/audio/albumart")
                 val artUri = ContentUris.withAppendedId(albumArtUri, albumId).toString()
 
                 songs.add(
